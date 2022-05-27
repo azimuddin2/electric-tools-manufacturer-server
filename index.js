@@ -13,34 +13,55 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
-async function run(){
-    try{
+async function run() {
+    try {
         await client.connect();
         const toolCollection = client.db('electricTools').collection('tools');
         const orderCollection = client.db('electricTools').collection('orders');
+        const usersCollection = client.db('electricTools').collection('users');
 
-        app.get('/tool', async(req, res) => {
+        app.get('/tool', async (req, res) => {
             const query = {};
             const cursor = toolCollection.find(query);
             const tools = await cursor.toArray();
             res.send(tools);
         })
 
-        app.get('/tool/:id', async(req, res) => {
+        app.put('/user/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = req.body;
+            const filter = { email: email };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: user,
+            };
+            const result = await usersCollection.updateOne(filter, updateDoc, options);
+            // const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
+            res.send(result);
+        });
+
+        app.get('/tool/:id', async (req, res) => {
             const id = req.params.id;
-            const query = {_id: ObjectId(id)};
+            const query = { _id: ObjectId(id) };
             const tool = await toolCollection.findOne(query);
             res.send(tool);
         })
 
-        app.post('/order', async(req, res) => {
+        app.get('/order', async (req, res) => {
+            const email = req.query.customerEmail;
+            const query = { customerEmail: email };
+            const orders = await orderCollection.find(query).toArray();
+            res.send(orders);
+        })
+
+        app.post('/order', async (req, res) => {
             const order = req.body;
             const result = await orderCollection.insertOne(order);
             res.send(result);
         })
 
     }
-    finally{}
+    finally { }
 }
 run().catch(console.dir);
 
