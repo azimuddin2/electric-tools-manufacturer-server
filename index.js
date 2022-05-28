@@ -3,6 +3,7 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -109,7 +110,14 @@ async function run() {
             const query = { _id: ObjectId(id) };
             const tool = await toolCollection.findOne(query);
             res.send(tool);
-        })
+        });
+
+        app.get('/order/:id', verifyJWT, async(req, res) => {
+            const id = req.params.id;
+            const query = {_id: ObjectId(id)};
+            const order = await orderCollection.findOne(query);
+            res.send(order);
+        });
 
         app.get('/order', verifyJWT, async (req, res) => {
             const email = req.query.customerEmail;
@@ -122,13 +130,16 @@ async function run() {
             else {
                 return res.status(403).send({ message: 'forbidden access' });
             }
-        })
+        });
 
         app.post('/order', async (req, res) => {
             const order = req.body;
             const result = await orderCollection.insertOne(order);
             res.send(result);
-        })
+        });
+
+        
+
 
     }
     finally { }
