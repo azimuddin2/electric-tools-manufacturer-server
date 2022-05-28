@@ -36,12 +36,31 @@ async function run() {
         const orderCollection = client.db('electricTools').collection('orders');
         const usersCollection = client.db('electricTools').collection('users');
 
+
         app.get('/tool', async (req, res) => {
             const query = {};
             const cursor = toolCollection.find(query);
             const tools = await cursor.toArray();
             res.send(tools);
         });
+
+        app.get('/tool', verifyJWT, async(req, res) => {
+            const tools = await toolCollection.find().toArray();
+            res.send(tools);
+        })
+
+        app.post('/tool', verifyJWT, async(req, res) => {
+            const newTool = req.body;
+            const result = await toolCollection.insertOne(newTool);
+            res.send(result);
+        })
+
+        app.delete('/tool/:id', verifyJWT, async(req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const result = await toolCollection.deleteOne(filter);
+            res.send(result);
+        })
 
         app.get('/user', verifyJWT, async (req, res) => {
             const users = await usersCollection.find().toArray();
