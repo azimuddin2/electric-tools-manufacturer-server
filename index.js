@@ -30,12 +30,51 @@ function verifyJWT(req, res, next) {
     });
 }
 
+
+function sendPaymentConfirmationEmail(order) {
+    const { patient, patientName, treatment, date, slot } = order;
+
+    const { _id, toolPrice, toolName, customerName, customerEmail, customerPhone } = order;
+  
+    var email = {
+      from: process.env.EMAIL_SENDER,
+      to: customerEmail,
+      subject: `We have received your payment for ${toolName} is Confirmed`,
+      text: `Your payment for this Appointment ${toolName} is Confirmed`,
+      html: `
+        <div>
+          <p> Hello ${customerName}, </p>
+          <h3>Thank you for your payment . </h3>
+          <h3>We have received your payment</h3>
+          <h3>Our Address</h3>
+          <p>Bangladesh-Feni</p>
+          <p>Bangladesh</p>
+          <a href="https://web.programming-hero.com/">unsubscribe</a>
+        </div>
+      `
+    };
+  
+    emailClient.sendMail(email, function (err, info) {
+      if (err) {
+        console.log(err);
+      }
+      else {
+        console.log('Message sent: ', info);
+      }
+    });
+  
+  }
+
+
 async function run() {
     try {
         await client.connect();
         const toolCollection = client.db('electricTools').collection('tools');
         const orderCollection = client.db('electricTools').collection('orders');
         const usersCollection = client.db('electricTools').collection('users');
+        const paymentsCollection = client.db('electricTools').collection('payments');
+        const reviewCollection = client.db('electricTools').collection('reviews');
+
 
 
         app.get('/tool', async (req, res) => {
@@ -132,14 +171,53 @@ async function run() {
             }
         });
 
+        app.patch('/order/:id', verifyJWT, async(req, res) => {
+            const id = req.params.id;
+        const payment = req.body;
+        const filter = {_id: ObjectId(id)};
+        const updateDoc = {
+            $set: {
+                paid: true,
+                transactionId: payment.transactionId,
+            }
+        }
+        const result = await paymentsCollection.insertOne(payment);
+        const updatedOrder = await orderCollection.updateOne(filter, updateDoc);
+        res.send(updatedOrder)
+        });
+
+        
         app.post('/order', async (req, res) => {
             const order = req.body;
             const result = await orderCollection.insertOne(order);
             res.send(result);
         });
 
-        
+        app.post('/create-payment-intent', verifyJWT, async(req, res) => {
+          const service = req.body;
+          const price = service.toolPrice;
+          const amount = price*100;
+          console.log(price);
+          const paymentIntent = await stripe.paymentIntents.create({
+              amount : amount,
+              currency: 'usd',
+              payment_method_types:['card']
+          })
+          res.send({clientSecret: paymentIntent.client_secret})
+        })
 
+        app.post('/review', async (req, res) => {
+            const review = req.body;
+            const result = await reviewCollection.insertOne(review);
+            res.send(result);
+        });
+
+        app.get('/review', async (req, res) => {
+            const query = {};
+            const cursor = reviewCollection.find(query);
+            const allReview = await cursor.toArray();
+            res.send(allReview);
+        });
 
     }
     finally { }
