@@ -74,8 +74,7 @@ async function run() {
         const usersCollection = client.db('electricTools').collection('users');
         const paymentsCollection = client.db('electricTools').collection('payments');
         const reviewCollection = client.db('electricTools').collection('reviews');
-
-
+        const profileCollection = client.db('electricTools').collection('profile');
 
         app.get('/tool', async (req, res) => {
             const query = {};
@@ -106,6 +105,31 @@ async function run() {
             const users = await usersCollection.find().toArray();
             res.send(users);
         })
+
+
+
+
+        app.post('/profile', async (req, res) => {
+            const profile = req.body;
+            const result = await profileCollection.insertOne(profile);
+            res.send(result);
+        });
+
+
+        // app.get('/profile/:email', async (req, res) => {
+        //     const email = req.params.email;
+        //     const result = await profileCollection.findOne({ email: email });
+        //     res.send(result);
+        // });
+
+        app.get('/profile/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await profileCollection.findOne(query);
+            res.send(result);
+        });
+
+
 
         app.get('/admin/:email', async (req, res) => {
             const email = req.params.email;
@@ -196,6 +220,7 @@ async function run() {
         app.post('/create-payment-intent', verifyJWT, async(req, res) => {
           const service = req.body;
           const price = service.toolPrice;
+          console.log(price)
           const amount = price*100;
           console.log(price);
           const paymentIntent = await stripe.paymentIntents.create({
