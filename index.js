@@ -108,6 +108,49 @@ async function run() {
 
 
 
+        
+        // Order Operation
+        app.get('/order/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const order = await orderCollection.findOne(query);
+            res.send(order);
+        });
+
+        app.get('/order', verifyJWT, async (req, res) => {
+            const email = req.query.customerEmail;
+            const decodedEmail = req.decoded.email;
+            if (email === decodedEmail) {
+                const query = { customerEmail: email };
+                const orders = await orderCollection.find(query).toArray();
+                return res.send(orders);
+            }
+            else {
+                return res.status(403).send({ message: 'forbidden access' });
+            }
+        });
+
+        app.patch('/order/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const payment = req.body;
+            const filter = { _id: ObjectId(id) };
+            const updateDoc = {
+                $set: {
+                    paid: true,
+                    transactionId: payment.transactionId,
+                }
+            }
+            const result = await paymentsCollection.insertOne(payment);
+            const updatedOrder = await orderCollection.updateOne(filter, updateDoc);
+            res.send(updatedOrder)
+        });
+
+
+        app.post('/order', async (req, res) => {
+            const order = req.body;
+            const result = await orderCollection.insertOne(order);
+            res.send(result);
+        });
 
 
 
@@ -171,47 +214,7 @@ async function run() {
         //     res.send({ result, token });
         // });
 
-        // app.get('/order/:id', verifyJWT, async(req, res) => {
-        //     const id = req.params.id;
-        //     const query = {_id: ObjectId(id)};
-        //     const order = await orderCollection.findOne(query);
-        //     res.send(order);
-        // });
 
-        // app.get('/order', verifyJWT, async (req, res) => {
-        //     const email = req.query.customerEmail;
-        //     const decodedEmail = req.decoded.email;
-        //     if (email === decodedEmail) {
-        //         const query = { customerEmail: email };
-        //         const orders = await orderCollection.find(query).toArray();
-        //         return res.send(orders);
-        //     }
-        //     else {
-        //         return res.status(403).send({ message: 'forbidden access' });
-        //     }
-        // });
-
-        // app.patch('/order/:id', verifyJWT, async(req, res) => {
-        //     const id = req.params.id;
-        // const payment = req.body;
-        // const filter = {_id: ObjectId(id)};
-        // const updateDoc = {
-        //     $set: {
-        //         paid: true,
-        //         transactionId: payment.transactionId,
-        //     }
-        // }
-        // const result = await paymentsCollection.insertOne(payment);
-        // const updatedOrder = await orderCollection.updateOne(filter, updateDoc);
-        // res.send(updatedOrder)
-        // });
-
-
-        // app.post('/order', async (req, res) => {
-        //     const order = req.body;
-        //     const result = await orderCollection.insertOne(order);
-        //     res.send(result);
-        // });
 
         // app.post('/create-payment-intent', verifyJWT, async(req, res) => {
         //   const service = req.body;
