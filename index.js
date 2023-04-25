@@ -65,19 +65,15 @@ function sendPaymentConfirmationEmail(order) {
 async function run() {
     try {
         const toolCollection = client.db('electricTools').collection('tools');
+        const orderCollection = client.db('electricTools').collection('orders');
+        const usersCollection = client.db('electricTools').collection('users');
+        const paymentsCollection = client.db('electricTools').collection('payments');
+        const reviewCollection = client.db('electricTools').collection('reviews');
+        const profileCollection = client.db('electricTools').collection('profile');
 
 
 
-        // const orderCollection = client.db('electricTools').collection('orders');
-        // const usersCollection = client.db('electricTools').collection('users');
-        // const paymentsCollection = client.db('electricTools').collection('payments');
-        // const reviewCollection = client.db('electricTools').collection('reviews');
-        // const profileCollection = client.db('electricTools').collection('profile');
-
-
-
-
-
+        
         // Tools Operation
         app.get('/tools', async (req, res) => {
             const query = {};
@@ -108,7 +104,7 @@ async function run() {
 
 
 
-        
+
         // Order Operation
         app.get('/order/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
@@ -155,12 +151,88 @@ async function run() {
 
 
 
+        // user operation
+        app.get('/user', verifyJWT, async (req, res) => {
+            const users = await usersCollection.find().toArray();
+            res.send(users);
+        })
 
-        // app.get('/user', verifyJWT, async (req, res) => {
-        //     const users = await usersCollection.find().toArray();
-        //     res.send(users);
-        // })
+        app.get('/admin/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = await usersCollection.findOne({ email: email });
+            const isAdmin = user.role === 'admin';
+            res.send({ admin: isAdmin });
+        })
 
+        app.put('/user/admin/:email', verifyJWT, async (req, res) => {
+            const email = req.params.email;
+            const requester = req.decoded.email;
+            const requesterAccount = await usersCollection.findOne({ email: requester });
+            if (requesterAccount.role === 'admin') {
+                const filter = { email: email };
+                const updateDoc = {
+                    $set: { role: 'admin' },
+                };
+                const result = await usersCollection.updateOne(filter, updateDoc);
+                res.send(result);
+            }
+            else {
+                res.status(403).send({ message: 'forbidden' });
+            }
+        });
+
+        app.put('/user/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = req.body;
+            const filter = { email: email };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: user,
+            };
+            const result = await usersCollection.updateOne(filter, updateDoc, options);
+            const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
+            res.send({ result, token });
+        });
+
+
+
+
+        // Payment operation
+        app.post('/create-payment-intent', verifyJWT, async (req, res) => {
+            const service = req.body;
+            const price = service.toolPrice;
+            console.log(price)
+            const amount = price * 100;
+            console.log(price);
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: amount,
+                currency: 'usd',
+                payment_method_types: ['card']
+            })
+            res.send({ clientSecret: paymentIntent.client_secret })
+        });
+
+
+
+
+        // review operation
+        app.post('/review', async (req, res) => {
+            const review = req.body;
+            const result = await reviewCollection.insertOne(review);
+            res.send(result);
+        });
+
+        app.get('/review', async (req, res) => {
+            const query = {};
+            const cursor = reviewCollection.find(query);
+            const allReview = await cursor.toArray();
+            res.send(allReview);
+        });
+
+
+
+
+        // Profile operation
         // app.post('/profile', async (req, res) => {
         //     const profile = req.body;
         //     const result = await profileCollection.insertOne(profile);
@@ -174,75 +246,6 @@ async function run() {
         //     const result = await profileCollection.findOne(query);
         //     res.send(result);
         // });
-
-
-
-        // app.get('/admin/:email', async (req, res) => {
-        //     const email = req.params.email;
-        //     const user = await usersCollection.findOne({ email: email });
-        //     const isAdmin = user.role === 'admin';
-        //     res.send({ admin: isAdmin });
-        // })
-
-        // app.put('/user/admin/:email', verifyJWT, async (req, res) => {
-        //     const email = req.params.email;
-        //     const requester = req.decoded.email;
-        //     const requesterAccount = await usersCollection.findOne({ email: requester });
-        //     if (requesterAccount.role === 'admin') {
-        //         const filter = { email: email };
-        //         const updateDoc = {
-        //             $set: { role: 'admin' },
-        //         };
-        //         const result = await usersCollection.updateOne(filter, updateDoc);
-        //         res.send(result);
-        //     }
-        //     else {
-        //         res.status(403).send({ message: 'forbidden' });
-        //     }
-        // });
-
-        // app.put('/user/:email', async (req, res) => {
-        //     const email = req.params.email;
-        //     const user = req.body;
-        //     const filter = { email: email };
-        //     const options = { upsert: true };
-        //     const updateDoc = {
-        //         $set: user,
-        //     };
-        //     const result = await usersCollection.updateOne(filter, updateDoc, options);
-        //     const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
-        //     res.send({ result, token });
-        // });
-
-
-
-        // app.post('/create-payment-intent', verifyJWT, async(req, res) => {
-        //   const service = req.body;
-        //   const price = service.toolPrice;
-        //   console.log(price)
-        //   const amount = price*100;
-        //   console.log(price);
-        //   const paymentIntent = await stripe.paymentIntents.create({
-        //       amount : amount,
-        //       currency: 'usd',
-        //       payment_method_types:['card']
-        //   })
-        //   res.send({clientSecret: paymentIntent.client_secret})
-        // })
-
-        // app.post('/review', async (req, res) => {
-        //     const review = req.body;
-        //     const result = await reviewCollection.insertOne(review);
-        //     res.send(result);
-        // });
-
-        // app.get('/review', async (req, res) => {
-        //     const query = {};
-        //     const cursor = reviewCollection.find(query);
-        //     const allReview = await cursor.toArray();
-        //     res.send(allReview);
-        // });
-
     }
     finally { }
 }
