@@ -16,13 +16,12 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
 function verifyJWT(req, res, next) {
     const authHeader = req.headers.authorization;
-
     if (!authHeader) {
-        return res.status(401).send({ message: 'UnAuthorized access' });
+        return res.status(401).send({ message: 'UnAuthorization access' })
     }
     const token = authHeader.split(' ')[1];
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
-        if (err) {
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (error, decoded) {
+        if (error) {
             return res.status(403).send({ message: 'Forbidden access' })
         }
         req.decoded = decoded;
@@ -86,7 +85,7 @@ async function run() {
 
 
 
-        
+
         // Tools Operation
         app.get('/tools', async (req, res) => {
             const query = {};
@@ -101,8 +100,9 @@ async function run() {
             res.send(tool);
         });
 
-        app.post('/tool', verifyJWT, async (req, res) => {
+        app.post('/tool', verifyJWT, verifyAdmin, async (req, res) => {
             const newTool = req.body;
+            console.log(newTool);
             const result = await toolCollection.insertOne(newTool);
             res.send(result);
         });
@@ -119,6 +119,24 @@ async function run() {
 
 
         // Order Operation
+        app.post('/order', async (req, res) => {
+            const order = req.body;
+            const result = await orderCollection.insertOne(order);
+            res.send(result);
+        });
+
+        app.get('/orders', verifyJWT, async (req, res) => {
+            const email = req.query.email;
+            const decodedEmail = req.decoded.email;
+
+            if (email !== decodedEmail) {
+                return res.status(403).send({ message: 'forbidden access' });
+            }
+            const query = { customerEmail: email };
+            const orders = await orderCollection.find(query).toArray();
+            res.send(orders);
+        });
+
         app.get('/order/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
@@ -126,18 +144,6 @@ async function run() {
             res.send(order);
         });
 
-        app.get('/order', verifyJWT, async (req, res) => {
-            const email = req.query.customerEmail;
-            const decodedEmail = req.decoded.email;
-            if (email === decodedEmail) {
-                const query = { customerEmail: email };
-                const orders = await orderCollection.find(query).toArray();
-                return res.send(orders);
-            }
-            else {
-                return res.status(403).send({ message: 'forbidden access' });
-            }
-        });
 
         app.patch('/order/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
@@ -152,13 +158,6 @@ async function run() {
             const result = await paymentsCollection.insertOne(payment);
             const updatedOrder = await orderCollection.updateOne(filter, updateDoc);
             res.send(updatedOrder)
-        });
-
-
-        app.post('/order', async (req, res) => {
-            const order = req.body;
-            const result = await orderCollection.insertOne(order);
-            res.send(result);
         });
 
 
