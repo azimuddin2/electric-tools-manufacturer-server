@@ -102,12 +102,11 @@ async function run() {
 
         app.post('/tool', verifyJWT, verifyAdmin, async (req, res) => {
             const newTool = req.body;
-            console.log(newTool);
             const result = await toolCollection.insertOne(newTool);
             res.send(result);
         });
 
-        app.delete('/tool/:id', verifyJWT, async (req, res) => {
+        app.delete('/tool/:id', verifyJWT, verifyAdmin, async (req, res) => {
             const id = req.params.id;
             const filter = { _id: new ObjectId(id) };
             const result = await toolCollection.deleteOne(filter);
