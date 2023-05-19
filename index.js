@@ -213,7 +213,38 @@ async function run() {
             res.send(result);
         });
 
+        app.get('/user', verifyJWT, async (req, res) => {
+            const email = req.query.email;
+            const decodedEmail = req.decoded.email;
 
+            if (email !== decodedEmail) {
+                return res.status(403).send({ message: 'forbidden access' });
+            }
+            const query = { email: email };
+            const user = await userCollection.findOne(query);
+            res.send(user);
+        });
+
+        app.put('/user/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const user = req.body;
+            const options = { upsert: true };
+
+            const updateDoc = {
+                $set: {
+                    name: user.name,
+                    email: user.email,
+                    image: user.image,
+                    education: user.education,
+                    country: user.country,
+                    phone: user.phone,
+                },
+            };
+
+            const result = await userCollection.updateOne(filter, updateDoc, options);
+            res.send(result);
+        });
 
 
 
