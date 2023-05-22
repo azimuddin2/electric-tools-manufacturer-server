@@ -68,7 +68,6 @@ async function run() {
         const userCollection = client.db('electricTools').collection('users');
         const paymentsCollection = client.db('electricTools').collection('payments');
         const reviewCollection = client.db('electricTools').collection('reviews');
-        // const profileCollection = client.db('electricTools').collection('profile');
 
 
         // Verify Admin
@@ -304,22 +303,6 @@ async function run() {
         });
 
 
-
-
-        // Profile operation
-        // app.post('/profile', async (req, res) => {
-        //     const profile = req.body;
-        //     const result = await profileCollection.insertOne(profile);
-        //     res.send(result);
-        // });
-
-
-        // app.get('/profile/:id', async (req, res) => {
-        //     const id = req.params.id;
-        //     const query = { _id: ObjectId(id) };
-        //     const result = await profileCollection.findOne(query);
-        //     res.send(result);
-        // });
     }
     finally { }
 }
