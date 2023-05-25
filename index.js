@@ -66,7 +66,7 @@ async function run() {
         const toolCollection = client.db('electricTools').collection('tools');
         const orderCollection = client.db('electricTools').collection('orders');
         const userCollection = client.db('electricTools').collection('users');
-        const paymentsCollection = client.db('electricTools').collection('payments');
+        const paymentCollection = client.db('electricTools').collection('payments');
         const reviewCollection = client.db('electricTools').collection('reviews');
 
 
@@ -270,20 +270,42 @@ async function run() {
 
 
 
-        // Payment operation
-        app.post('/create-payment-intent', verifyJWT, async (req, res) => {
-            const service = req.body;
-            const price = service.toolPrice;
-            console.log(price)
-            const amount = price * 100;
+
+        // payment operation
+        app.post('/create-payment-intent', async (req, res) => {
+            const payment = req.body;
+            const price = payment.totalToolPrice;
             console.log(price);
+            const amount = price * 100;
+
             const paymentIntent = await stripe.paymentIntents.create({
                 amount: amount,
-                currency: 'usd',
-                payment_method_types: ['card']
-            })
-            res.send({ clientSecret: paymentIntent.client_secret })
+                currency: "usd",
+                "payment_method_types": [
+                    "card"
+                ]
+            });
+
+            res.send({
+                clientSecret: paymentIntent.client_secret,
+            });
         });
+
+        app.post('/payments', async (req, res) => {
+            const payment = req.body;
+            const result = await paymentCollection.insertOne(payment);
+            const id = payment.paymentId;
+            const filter = { _id: new ObjectId(id) };
+            const updateDoc = {
+                $set: {
+                    paid: true,
+                    transactionId: payment.transactionId
+                }
+            }
+            const updateResult = await orderCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        });
+
 
 
 
