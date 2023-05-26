@@ -168,17 +168,25 @@ async function run() {
         app.patch('/order/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
             const payment = req.body;
-            const filter = { _id: ObjectId(id) };
+            const filter = { _id: new ObjectId(id) };
             const updateDoc = {
                 $set: {
                     paid: true,
                     transactionId: payment.transactionId,
                 }
             }
-            const result = await paymentsCollection.insertOne(payment);
+            const result = await paymentCollection.insertOne(payment);
             const updatedOrder = await orderCollection.updateOne(filter, updateDoc);
             res.send(updatedOrder)
         });
+
+        app.delete('/order/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await orderCollection.deleteOne(query);
+            res.send(result);
+        });
+
 
 
 
