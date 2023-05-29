@@ -80,7 +80,7 @@ async function run() {
                 return res.status(403).send({ message: 'forbidden access' })
             }
             next();
-        }
+        };
 
 
 
@@ -88,6 +88,20 @@ async function run() {
         // Tools Operation
         app.get('/tools', async (req, res) => {
             const query = {};
+            const tools = await toolCollection.find(query).toArray();
+            res.send(tools);
+        });
+
+        app.get('/all-tools', async (req, res) => {
+            const search = req.query.search;
+            let query = {};
+            if (search.length) {
+                query = {
+                    $text: {
+                        $search: search
+                    }
+                }
+            };
             const tools = await toolCollection.find(query).toArray();
             res.send(tools);
         });
@@ -319,13 +333,13 @@ async function run() {
 
 
         // review operation
-        app.post('/review', async (req, res) => {
+        app.post('/review', verifyJWT, async (req, res) => {
             const review = req.body;
             const result = await reviewCollection.insertOne(review);
             res.send(result);
         });
 
-        app.get('/review', async (req, res) => {
+        app.get('/reviews', async (req, res) => {
             const query = {};
             const cursor = reviewCollection.find(query);
             const allReview = await cursor.toArray();
