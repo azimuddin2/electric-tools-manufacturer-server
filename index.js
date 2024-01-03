@@ -29,37 +29,6 @@ function verifyJWT(req, res, next) {
     });
 };
 
-function sendPaymentConfirmationEmail(order) {
-    const { _id, toolPrice, toolName, customerName, customerEmail, customerPhone } = order;
-
-    var email = {
-        from: process.env.EMAIL_SENDER,
-        to: customerEmail,
-        subject: `We have received your payment for ${toolName} is Confirmed`,
-        text: `Your payment for this Appointment ${toolName} is Confirmed`,
-        html: `
-        <div>
-          <p> Hello ${customerName}, </p>
-          <h3>Thank you for your payment . </h3>
-          <h3>We have received your payment</h3>
-          <h3>Our Address</h3>
-          <p>Bangladesh-Feni</p>
-          <p>Bangladesh</p>
-          <a href="https://web.programming-hero.com/">unsubscribe</a>
-        </div>
-      `
-    };
-
-    emailClient.sendMail(email, function (err, info) {
-        if (err) {
-            console.log(err);
-        }
-        else {
-            console.log('Message sent: ', info);
-        }
-    });
-};
-
 
 async function run() {
     try {
@@ -84,8 +53,7 @@ async function run() {
 
 
 
-
-        // Tools Operation
+        // Tools related api
         app.get('/tools', async (req, res) => {
             const query = {};
             const tools = await toolCollection.find(query).toArray();
@@ -147,8 +115,6 @@ async function run() {
             const result = await toolCollection.updateOne(filter, updateDoc, options);
             res.send(result);
         });
-
-
 
 
 

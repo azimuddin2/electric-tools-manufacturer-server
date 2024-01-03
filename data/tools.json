@@ -1,0 +1,164 @@
+[
+    {
+        "name": "Pliers",
+        "image": "https://i.ibb.co/Y3tVpw5/pliers.webp",
+        "description": "Electrical pliers allow electricians to strip away a wire's plastic insulation and and electrical connections expose bare metal wire.",
+        "price": 220,
+        "minimumQuantity": 6,
+        "availableQuantity": 100,
+        "rating": 5
+    },
+    {
+        "name": "Hand Saw",
+        "image": "https://i.ibb.co/CztJdvN/hand-saw.webp",
+        "description": "In woodworking and carpentry, hand saws, This is usually done in order to join the pieces together and carve a wooden object.",
+        "price": 190,
+        "minimumQuantity": 6,
+        "availableQuantity": 100,
+        "rating": 4
+    },
+    {
+        "name": "Mechanic",
+        "image": "https://i.ibb.co/pxzNP0j/mechanic-v1.webp",
+        "description": "They repair, replace, clean, and lubricate the parts. They then reassemble and test the tools to make sure they are operating",
+        "price": 170,
+        "minimumQuantity": 6,
+        "availableQuantity": 100,
+        "rating": 3
+    },
+    {
+        "name": "Metal Work",
+        "image": "https://i.ibb.co/FY9sLdh/metal-work-tool.webp",
+        "description": "Materials used for metalworking include ferrous and non-ferrous metals such as steel, gold, silver, bronze, iron, and more",
+        "price": 170,
+        "minimumQuantity": 6,
+        "availableQuantity": 100,
+        "rating": 5
+    },
+    {
+        "name": "SDS Drills",
+        "image": "https://i.ibb.co/PwnCjm2/SDS-Drills.webp",
+        "description": "SDS drills are an ideal tool for heavy duty jobs where fast and efficient drilling is needed.trigger switch is available.",
+        "price": 260,
+        "minimumQuantity": 6,
+        "availableQuantity": 100,
+        "rating": 4
+    },
+    {
+        "name": "Heat Gun",
+        "image": "https://i.ibb.co/YN8T0ny/Heat-Gun.webp",
+        "description": "Heat guns are commonly known for their use to strip paint and weld or bend plastics. However, than just plastic welding tools.",
+        "price": 250,
+        "minimumQuantity": 6,
+        "availableQuantity": 100,
+        "rating": 5
+    },
+    {
+        "name": "Mitre Saw",
+        "image": "https://i.ibb.co/WymnPFh/Mitre-Saw.webp",
+        "description": "Whereas chop saws are rugged and relatively simple tools, mitre saws are designed and manufactured cuts at many different angles.",
+        "price": 299,
+        "minimumQuantity": 6,
+        "availableQuantity": 100,
+        "rating": 5
+    },
+    {
+        "name": "Cleaning",
+        "image": "https://i.ibb.co/ZKLTH8g/cleaning.webp",
+        "description": " A variety of accurate and specific tools and products created and designed in various colors sizes and styles to clean easily.",
+        "price": 200,
+        "minimumQuantity": 6,
+        "availableQuantity": 100,
+        "rating": 4
+    },
+    {
+        "name": "Hammer",
+        "image": "https://i.ibb.co/3BYxxpZ/hammer.webp",
+        "description": "An electric hammer is a tool commonly used to drive nails, and other fasteners, into materials, such as wood and plaster.",
+        "price": 180,
+        "minimumQuantity": 6,
+        "availableQuantity": 100,
+        "rating": 3
+    },
+    {
+        "name": "Screwdriver Hand",
+        "image": "https://i.ibb.co/M1qLYn6/screwdriver-hand.webp",
+        "description": "Screwdrivers, also known as turn screws, are hand-held, manually-powered implements designed for the tightening of screws.",
+        "price": 290,
+        "minimumQuantity": 6,
+        "availableQuantity": 100,
+        "rating": 5
+    },
+    {
+        "name": "Sanders",
+        "image": "https://i.ibb.co/8cnxXBZ/Sanders.webp",
+        "description": "sander, portable power tool used for smoothing, polishing, or cleaning a surface, as of wood, plastic, or metal the orbital sander.",
+        "price": 350,
+        "minimumQuantity": 6,
+        "availableQuantity": 100,
+        "rating": 4
+    },
+    {
+        "name": "Tape Measure",
+        "image": "https://i.ibb.co/7vb1FRX/tape-measure.webp",
+        "description": "A measuring tape is a flexible tool used for measuring length.cloth, metal ribbon, It is a kind of also known as a tape measure.",
+        "price": 180,
+        "minimumQuantity": 6,
+        "availableQuantity": 100,
+        "rating": 5
+    },
+    {
+        "name": "Metal Tools",
+        "image": "https://i.ibb.co/TcF07Mc/Metal-Tools.webp",
+        "description": "Power tools are classified as either stationary or portable, where means hand-held. Portable power tools have obvious in mobility.",
+        "price": 300,
+        "minimumQuantity": 6,
+        "availableQuantity": 100,
+        "rating": 4
+    },
+    {
+        "name": "Interchange Screwdriver",
+        "image": "https://i.ibb.co/qjKp7Yp/screwdriver-interchangeable.webp",
+        "description": "An electric Interchange screwdriver is a portable electric device that allows you to screw and unscrew effortlessly.",
+        "price": 150,
+        "minimumQuantity": 6,
+        "availableQuantity": 100,
+        "rating": 3
+    },
+    {
+        "name": "Compressor",
+        "image": "https://i.ibb.co/fYgN2Jv/Compressor.webp",
+        "description": "Air compressor power tools, also called pneumatic tools, are generally faster, lighter and more powerful than traditional power tools.",
+        "price": 200,
+        "minimumQuantity": 6,
+        "availableQuantity": 100,
+        "rating": 4
+    },
+    {
+        "name": "riveter",
+        "image": "https://i.ibb.co/k2rNpMt/riveter.webp",
+        "description": "Air riveter power tools, also called pneumatic tools, are generally faster, lighter and more powerful than traditional power tools.",
+        "price": 280,
+        "minimumQuantity": 6,
+        "availableQuantity": 100,
+        "rating": 5
+    },
+    {
+        "name": "Roof Tool",
+        "image": "https://i.ibb.co/z6s9hJw/roof-tool.webp",
+        "description": "Air riveter power tools, also called pneumatic tools, are generally faster, lighter and more powerful than traditional power tools.",
+        "price": 260,
+        "minimumQuantity": 6,
+        "availableQuantity": 100,
+        "rating": 4
+    },
+    {
+        "name": "Bentnose",
+        "image": "https://i.ibb.co/5jZ4NjR/bent-nose.png",
+        "description": "A Bentnose tape is a flexible tool used for Bentnose length.cloth, metal ribbon, It is a kind of also known as a tape measure",
+        "price": 200,
+        "minimumQuantity": 6,
+        "availableQuantity": 100,
+        "rating": 5
+    }
+]
