@@ -60,18 +60,27 @@ async function run() {
             res.send(tools);
         });
 
+        app.get('/totalTools', async (req, res) => {
+            const result = await toolCollection.estimatedDocumentCount();
+            res.send({ totalTools: result });
+        });
+
         app.get('/all-tools', async (req, res) => {
+            const page = parseInt(req.query.page) || 0;
+            const limit = parseInt(req.query.limit) || 6;
+            const skip = page * limit;
+
             const search = req.query.search;
-            let query = {};
-            if (search.length) {
-                query = {
-                    $text: {
-                        $search: search
-                    }
-                }
-            };
-            const tools = await toolCollection.find(query).toArray();
-            res.send(tools);
+            let cursor;
+            if (search) {
+                cursor = toolCollection.find({ name: { $regex: search, $options: 'i' } });
+            }
+            else {
+                cursor = toolCollection.find();
+            }
+
+            const result = await cursor.skip(skip).limit(limit).toArray();
+            res.send(result);
         });
 
         app.get('/tool/:id', async (req, res) => {
