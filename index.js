@@ -53,7 +53,100 @@ async function run() {
 
 
 
-        // Tools related api
+        //NOTE: User related api
+        app.get('/jwt', async (req, res) => {
+            const email = req.query.email;
+            const query = { email: email };
+            const user = await userCollection.findOne(query);
+            if (user) {
+                const token = jwt.sign({ email }, process.env.ACCESS_TOKEN_SECRET)
+                return res.send({ accessToken: token });
+            }
+            res.status(403).send({ accessToken: '' });
+        });
+
+        app.post('/user', async (req, res) => {
+            const userInfo = req.body;
+            const query = { email: userInfo.email };
+
+            const existingUser = await userCollection.findOne(query);
+            if (existingUser) {
+                return res.send({ message: 'user already exist' })
+            }
+
+            const result = await userCollection.insertOne(userInfo);
+            res.send(result);
+        });
+
+        app.get('/users', async (req, res) => {
+            const query = {};
+            const users = await userCollection.find(query).toArray();
+            res.send(users);
+        });
+
+        app.put('/user/admin/:id', verifyJWT, verifyAdmin, async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    role: 'admin'
+                },
+            };
+            const result = await userCollection.updateOne(filter, updateDoc, options);
+            res.send(result);
+        });
+
+        app.get('/user/admin/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const user = await userCollection.findOne(query);
+            res.send({ isAdmin: user?.role === 'admin' });
+        });
+
+        app.delete('/user/:id', verifyJWT, verifyAdmin, async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await userCollection.deleteOne(query);
+            res.send(result);
+        });
+
+        app.get('/user', verifyJWT, async (req, res) => {
+            const email = req.query.email;
+            const decodedEmail = req.decoded.email;
+
+            if (email !== decodedEmail) {
+                return res.status(403).send({ message: 'forbidden access' });
+            }
+            const query = { email: email };
+            const user = await userCollection.findOne(query);
+            res.send(user);
+        });
+
+        app.put('/user/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const user = req.body;
+            const options = { upsert: true };
+
+            const updateDoc = {
+                $set: {
+                    name: user.name,
+                    email: user.email,
+                    image: user.image,
+                    education: user.education,
+                    country: user.country,
+                    phone: user.phone,
+                },
+            };
+
+            const result = await userCollection.updateOne(filter, updateDoc, options);
+            res.send(result);
+        });
+
+
+
+        //NOTE: Tools related api
         app.get('/tools', async (req, res) => {
             const query = {};
             const tools = await toolCollection.find(query).toArray();
@@ -127,7 +220,7 @@ async function run() {
 
 
 
-        // Order Operation
+        //NOTE: Order related api
         app.post('/order', async (req, res) => {
             const order = req.body;
             const result = await orderCollection.insertOne(order);
@@ -178,97 +271,7 @@ async function run() {
 
 
 
-
-
-        // User operation
-        app.get('/jwt', async (req, res) => {
-            const email = req.query.email;
-            const query = { email: email };
-            const user = await userCollection.findOne(query);
-            if (user) {
-                const token = jwt.sign({ email }, process.env.ACCESS_TOKEN_SECRET)
-                return res.send({ accessToken: token });
-            }
-            res.status(403).send({ accessToken: '' });
-        });
-
-        app.post('/user', async (req, res) => {
-            const user = req.body;
-            const result = await userCollection.insertOne(user);
-            res.send(result);
-        });
-
-        app.get('/users', async (req, res) => {
-            const query = {};
-            const users = await userCollection.find(query).toArray();
-            res.send(users);
-        });
-
-        app.put('/user/admin/:id', verifyJWT, verifyAdmin, async (req, res) => {
-            const id = req.params.id;
-            const filter = { _id: new ObjectId(id) };
-            const options = { upsert: true };
-            const updateDoc = {
-                $set: {
-                    role: 'admin'
-                },
-            };
-            const result = await userCollection.updateOne(filter, updateDoc, options);
-            res.send(result);
-        });
-
-        app.get('/user/admin/:email', async (req, res) => {
-            const email = req.params.email;
-            const query = { email: email };
-            const user = await userCollection.findOne(query);
-            res.send({ isAdmin: user?.role === 'admin' });
-        });
-
-        app.delete('/user/:id', verifyJWT, verifyAdmin, async (req, res) => {
-            const id = req.params.id;
-            const query = { _id: new ObjectId(id) };
-            const result = await userCollection.deleteOne(query);
-            res.send(result);
-        });
-
-        app.get('/user', verifyJWT, async (req, res) => {
-            const email = req.query.email;
-            const decodedEmail = req.decoded.email;
-
-            if (email !== decodedEmail) {
-                return res.status(403).send({ message: 'forbidden access' });
-            }
-            const query = { email: email };
-            const user = await userCollection.findOne(query);
-            res.send(user);
-        });
-
-        app.put('/user/:id', verifyJWT, async (req, res) => {
-            const id = req.params.id;
-            const filter = { _id: new ObjectId(id) };
-            const user = req.body;
-            const options = { upsert: true };
-
-            const updateDoc = {
-                $set: {
-                    name: user.name,
-                    email: user.email,
-                    image: user.image,
-                    education: user.education,
-                    country: user.country,
-                    phone: user.phone,
-                },
-            };
-
-            const result = await userCollection.updateOne(filter, updateDoc, options);
-            res.send(result);
-        });
-
-
-
-
-
-        // payment operation
+        //NOTE: payment related api
         app.post('/create-payment-intent', async (req, res) => {
             const payment = req.body;
             const price = payment.totalToolPrice;
@@ -305,9 +308,7 @@ async function run() {
 
 
 
-
-
-        // review operation
+        //NOTE: review related api
         app.post('/review', verifyJWT, async (req, res) => {
             const review = req.body;
             const result = await reviewCollection.insertOne(review);
