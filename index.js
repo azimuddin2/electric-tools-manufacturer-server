@@ -71,7 +71,7 @@ async function run() {
 
             const existingUser = await userCollection.findOne(query);
             if (existingUser) {
-                return res.send({ message: 'user already exist' })
+                return res.send({ message: 'user already exist' });
             }
 
             const result = await userCollection.insertOne(userInfo);
@@ -246,18 +246,19 @@ async function run() {
             res.send(order);
         });
 
-
         app.patch('/order/:id', verifyJWT, async (req, res) => {
+            const paymentInfo = req.body;
             const id = req.params.id;
-            const payment = req.body;
+
             const filter = { _id: new ObjectId(id) };
             const updateDoc = {
                 $set: {
                     paid: true,
-                    transactionId: payment.transactionId,
+                    transactionId: paymentInfo.transactionId,
+                    date: paymentInfo.date
                 }
             }
-            const result = await paymentCollection.insertOne(payment);
+            const insertResult = await paymentCollection.insertOne(paymentInfo);
             const updatedOrder = await orderCollection.updateOne(filter, updateDoc);
             res.send(updatedOrder)
         });
@@ -289,21 +290,6 @@ async function run() {
             res.send({
                 clientSecret: paymentIntent.client_secret,
             });
-        });
-
-        app.post('/payments', async (req, res) => {
-            const payment = req.body;
-            const result = await paymentCollection.insertOne(payment);
-            const id = payment.paymentId;
-            const filter = { _id: new ObjectId(id) };
-            const updateDoc = {
-                $set: {
-                    paid: true,
-                    transactionId: payment.transactionId
-                }
-            }
-            const updateResult = await orderCollection.updateOne(filter, updateDoc);
-            res.send(result);
         });
 
 
