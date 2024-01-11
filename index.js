@@ -78,7 +78,7 @@ async function run() {
             res.send(result);
         });
 
-        app.get('/users', async (req, res) => {
+        app.get('/users', verifyJWT, verifyAdmin, async (req, res) => {
             const query = {};
             const users = await userCollection.find(query).toArray();
             res.send(users);
@@ -184,9 +184,17 @@ async function run() {
         });
 
         app.post('/tool', verifyJWT, verifyAdmin, async (req, res) => {
-            const newTool = req.body;
-            const result = await toolCollection.insertOne(newTool);
-            res.send(result);
+            const newToolData = req.body;
+            const query = { name: newToolData.name };
+
+            const existingTool = await toolCollection.findOne(query);
+            if (existingTool) {
+                return res.send({ message: 'This tool already exists' })
+            }
+            else {
+                const result = await toolCollection.insertOne(newToolData);
+                return res.send(result);
+            }
         });
 
         app.delete('/tool/:id', verifyJWT, verifyAdmin, async (req, res) => {
