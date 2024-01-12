@@ -207,21 +207,22 @@ async function run() {
         app.put('/tool/:id', verifyJWT, verifyAdmin, async (req, res) => {
             const id = req.params.id;
             const filter = { _id: new ObjectId(id) };
-            const product = req.body;
-            const { name, img, price, description, minimumQuantity, availableQuantity } = product
+            const updateProductData = req.body;
+            const { name, image, minimumQuantity, availableQuantity, price, description, rating } = updateProductData;
 
             const options = { upsert: true };
             const updateDoc = {
                 $set: {
                     name: name,
-                    img: img,
+                    image: image,
+                    minimumQuantity: minimumQuantity,
+                    availableQuantity: availableQuantity,
                     price: price,
                     description: description,
-                    minimumQuantity: minimumQuantity,
-                    availableQuantity: availableQuantity
+                    rating: rating
                 },
             };
-
+            
             const result = await toolCollection.updateOne(filter, updateDoc, options);
             res.send(result);
         });
