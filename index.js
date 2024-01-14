@@ -125,18 +125,20 @@ async function run() {
 
         app.put('/user/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
+            const updateUserInfo = req.body;
+            const { name, email, image, education, country, phone } = updateUserInfo;
+
             const filter = { _id: new ObjectId(id) };
-            const user = req.body;
             const options = { upsert: true };
 
             const updateDoc = {
                 $set: {
-                    name: user.name,
-                    email: user.email,
-                    image: user.image,
-                    education: user.education,
-                    country: user.country,
-                    phone: user.phone,
+                    name: name,
+                    email: email,
+                    image: image,
+                    education: education,
+                    country: country,
+                    phone: phone,
                 },
             };
 
@@ -222,7 +224,7 @@ async function run() {
                     rating: rating
                 },
             };
-            
+
             const result = await toolCollection.updateOne(filter, updateDoc, options);
             res.send(result);
         });
@@ -315,6 +317,13 @@ async function run() {
             const cursor = reviewCollection.find(query);
             const allReview = await cursor.toArray();
             res.send(allReview);
+        });
+
+        app.delete('/review/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await reviewCollection.deleteOne(query);
+            res.send(result);
         });
 
 
