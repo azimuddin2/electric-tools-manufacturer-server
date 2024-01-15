@@ -327,6 +327,23 @@ async function run() {
         });
 
 
+        app.get('/admin-stats', verifyJWT, verifyAdmin, async (req, res) => {
+           const payments = await paymentCollection.find().toArray();
+           const revenue = payments.reduce((sum , payment) => sum + payment.totalToolPrice, 0);
+
+            const customers = await userCollection.estimatedDocumentCount();
+            const tools = await toolCollection.estimatedDocumentCount();
+            const orders = await paymentCollection.estimatedDocumentCount();
+
+            res.send({
+                revenue,
+                customers,
+                tools,
+                orders
+            });
+        });
+
+
     }
     finally { }
 }
