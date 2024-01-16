@@ -303,6 +303,18 @@ async function run() {
             });
         });
 
+        app.get('/payments', verifyJWT, async (req, res) => {
+            const email = req.query.email;
+            const decodedEmail = req.decoded.email;
+            if (email !== decodedEmail) {
+                return res.status(403).send({ message: 'forbidden access' });
+            }
+
+            const query = { customerEmail: email };
+            const result = await paymentCollection.find(query).toArray();
+            res.send(result);
+        });
+
 
 
         //NOTE: review related api
@@ -319,7 +331,7 @@ async function run() {
             res.send(allReview);
         });
 
-        app.delete('/review/:id', verifyJWT, async (req, res) => {
+        app.delete('/review/:id', verifyJWT, verifyAdmin, async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await reviewCollection.deleteOne(query);
@@ -327,9 +339,10 @@ async function run() {
         });
 
 
+        //NOTE: admin stats api
         app.get('/admin-stats', verifyJWT, verifyAdmin, async (req, res) => {
-           const payments = await paymentCollection.find().toArray();
-           const revenue = payments.reduce((sum , payment) => sum + payment.totalToolPrice, 0);
+            const payments = await paymentCollection.find().toArray();
+            const revenue = payments.reduce((sum, payment) => sum + payment.totalToolPrice, 0);
 
             const customers = await userCollection.estimatedDocumentCount();
             const tools = await toolCollection.estimatedDocumentCount();
